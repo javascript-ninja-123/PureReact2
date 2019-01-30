@@ -5,6 +5,10 @@ const importThis = (() => {
         diff(vdom,parentDom,oldDom);
     }
 
+    // const renderForHook = (hooks) => {
+    //     console.log(hooks)
+    // }
+
     const diff = (vdom,parentDom,oldDom) => {
         let oldvDom = oldDom ? oldDom._virtualDom : null;
         //first rendering && native element
@@ -39,6 +43,24 @@ const importThis = (() => {
         //replace
         else{
             elementReplace(vdom,oldvDom,oldDom,parentDom)
+        }
+        let keyedElements = [];
+        if(!isFunction(vdom) && !isComponent(vdom) && vdom.type !== 'text'){
+            if(oldDom !== undefined && oldDom !== null){
+                for(let i = 0; i<oldDom.childNodes.length; i++){
+                    const domElement = oldDom.childNodes[i]
+                    if(domElement.tagName){
+                        const key = domElement._virtualDom.props.key;
+                        
+                        if(key){
+                            keyedElements[key] = {
+                                domElement,
+                                index:i
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -84,9 +106,8 @@ const importThis = (() => {
     }
 
     const updateComponent = (vdom,parentDom,oldDom) => {
+        const component = new vdom.type(vdom.props || {})
         try{
-            const component = new vdom.type(vdom.props || {})
-     
             const oldComponent = oldDom._virtualComponent._virtualComponent;
             //should update check
             if(oldComponent.componentShouldUpdate(component.props)){
@@ -347,7 +368,24 @@ class Component{
 
 }
 
+// let globalHooks = new Map();
 
+// const useState = (defaultValue) => {
+//     let hookData = globalHooks.get(useState)
+//     if(!hookData)  hookData = {calls:0, store:[]}
+
+//     const setValue = newValue => {
+//         let hookData = globalHooks.get(useState)
+//         hookData.store[hookData.calls] = newValue
+//         globalHooks.set(useState, hookData)
+//         render()
+//     }
+    
+//     hookData.store[hookData.calls] = defaultValue
+//     let value = hookData.store[hookData.calls]
+//     globalHooks.set(useState, hookData)
+//     return [value,setValue];
+// }
 
 return {
     createElement,
@@ -364,13 +402,28 @@ return {
 
 
 
-  const AppUIFunction = () => {
-      return(
-          <div>
-              what is up borther
-          </div>
-      )
-  }
+//   const AppUIFunction = () => {
+//       const [number,setNumber] = Pureact.useState(0)
+//       const onClick =e => {
+//           e.preventDefault();
+//           setNumber(number + 1)
+//           console.log('this is number', number)
+//       }
+//       return(
+//           <div>
+//               <button onClick={onClick}>asdfasd</button>
+//               <p>{number}</p>
+//           </div>
+//       )
+//   }
+
+class App2 extends Pureact.Component{
+    render(){
+        <div>
+            dasfasfads
+        </div>
+    }
+}
 
 
   class App extends Pureact.Component{
@@ -393,7 +446,8 @@ return {
       }
       onClickReRender = e => {
           e.preventDefault();
-          Pureact.render(<App text="should change"/>, document.getElementById('root'))
+          console.log('render')
+          Pureact.render(<App2 text="should change"/>, document.getElementById('root'))
       }
       componetDidUpdate(prevProps,prevState){
           console.log(prevProps,prevState)
@@ -408,7 +462,7 @@ return {
       render(){
           return(
               <div class={this.state.data} ref={this.divRef}>
-                 <AppUIFunction/>
+                 {/* <AppUIFunction/> */}
                  <button onClick={this.onClick}>click</button>
                  <p>{this.props.text}</p> 
                  <button onClick={this.onClickReRender}>rerender</button>
