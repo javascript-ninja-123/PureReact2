@@ -280,7 +280,6 @@ const TinyReact = (function () {
       });
   }
 
-
   return {
       createElement,
       render

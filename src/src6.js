@@ -45,24 +45,55 @@ const importThis = (() => {
             elementReplace(vdom,oldvDom,oldDom,parentDom)
         }
         let keyedElements = [];
-        if(!isFunction(vdom) && !isComponent(vdom) && vdom.type !== 'text'){
-            if(oldDom !== undefined && oldDom !== null){
-                for(let i = 0; i<oldDom.childNodes.length; i++){
-                    const domElement = oldDom.childNodes[i]
-                    if(domElement.tagName){
-                        const key = domElement._virtualDom.props.key;
+        // if(!isFunction(vdom) && !isComponent(vdom) && vdom.type !== 'text'){
+        //     if(oldDom !== undefined && oldDom !== null){
+        //         for(let i = 0; i<oldDom.childNodes.length; i++){
+        //             const domElement = oldDom.childNodes[i]
+        //             if(domElement.tagName){
+        //                 const key = domElement._virtualDom.props.key;
                         
-                        if(key){
-                            keyedElements[key] = {
-                                domElement,
-                                index:i
-                            }
+        //                 if(key){
+        //                     keyedElements[key] = {
+        //                         domElement,
+        //                         index:i
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        removeChild(vdom,oldDom);
+    }
+
+
+    const removeChild = (vdom,oldDom) => {
+               //remove doms
+               let domElement;
+               if(vdom.type !== 'text'){
+                if(oldDom !== undefined && oldDom !== null){
+                    if(isFunction(vdom)){
+                        domElement=  vdom.type(vdom.props || {});
+                    }
+                    else if(isComponent(vdom)){
+
+                        const component = new vdom.type(vdom.props || {})
+                        domElement = component.render();
+              
+                    }
+                    else{
+                        domElement = vdom; 
+                    }
+                    const oldNodes =oldDom.childNodes;
+                    if(oldNodes.length > domElement.children.length){
+                        for(let i = oldNodes.length -1; i >= domElement.children.length; i--){
+                            const nodetoUnmount = oldNodes[i]
+                            nodetoUnmount.remove();
                         }
                     }
                 }
             }
-        }
     }
+
 
     const renderChild = (vdom,parentDom,oldDom) => {
         vdom.children.forEach((childDom,i) => diff(childDom,oldDom, oldDom.childNodes[i]))
@@ -402,26 +433,24 @@ return {
 
 
 
-//   const AppUIFunction = () => {
-//       const [number,setNumber] = Pureact.useState(0)
-//       const onClick =e => {
-//           e.preventDefault();
-//           setNumber(number + 1)
-//           console.log('this is number', number)
-//       }
-//       return(
-//           <div>
-//               <button onClick={onClick}>asdfasd</button>
-//               <p>{number}</p>
-//           </div>
-//       )
-//   }
-
 class App2 extends Pureact.Component{
+    onClick = e => {
+        e.preventDefault();
+        console.log("what is up")
+    }
     render(){
+       return(
         <div>
-            dasfasfads
+             <button>click</button>
+              <p>{this.props.text}</p> 
+               <button onClick={this.onClick}>do it again</button>
+               <Pureact.Fragment>
+                     <div>fragment1</div>
+                     <div>nonono</div>
+                 </Pureact.Fragment>
+               
         </div>
+       )
     }
 }
 
@@ -462,7 +491,6 @@ class App2 extends Pureact.Component{
       render(){
           return(
               <div class={this.state.data} ref={this.divRef}>
-                 {/* <AppUIFunction/> */}
                  <button onClick={this.onClick}>click</button>
                  <p>{this.props.text}</p> 
                  <button onClick={this.onClickReRender}>rerender</button>
@@ -470,6 +498,7 @@ class App2 extends Pureact.Component{
                      <div onClick={this.onClickFragment}>fragment1</div>
                      <div>{this.state.data}</div>
                  </Pureact.Fragment>
+                 <p>dasfasd</p>
               </div>
           )
       }

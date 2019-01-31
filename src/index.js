@@ -1,7 +1,4 @@
-import './src6';
-
-
-
+import './app8';
 
 // const importThis = (() => {
 
